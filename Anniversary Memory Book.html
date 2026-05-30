@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 文档类型和语言声明 -->
+    <meta charset="UTF-8"> <!-- 设置字符编码为UTF-8，支持中文显示 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- 响应式设计，适配移动设备 -->
+    <title>我们的爱情纪念册</title>  <!-- 网页标题，显示在浏览器标签页上 -->
+    <!-- 引入Google字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS变量定义，方便统一管理颜色和样式 */
+        :root {
+            --primary-color: #FF6B8B;      /* 主色调 - 粉色 */
+            --secondary-color: #FFB6C1;    /* 辅助色 - 浅粉色 */
+            --accent-color: #FFD700;       /* 强调色 - 金色 */
+            --bg-color: #FFF9FB;           /* 背景色 - 浅粉白 */
+            --text-color: #333333;         /* 文字颜色 - 深灰色 */
+            --light-gray: #F5F5F5;         /* 浅灰色 */
+            --card-bg: #FFFFFF;            /* 卡片背景色 - 白色 */
+            --timeline-color: #9C27B0;     /* 时间轴颜色 - 紫色 */
+            --light-pink: #FFE4E9;         /* 浅粉色 */
+            --medium-pink: #FF8FA3;        /* 中等粉色 */
+        }
+
+        /* 通用样式重置，消除浏览器默认样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* 页面主体样式 */
+       body {
+            font-family: 'Noto Sans SC', sans-serif;  /* 使用思源黑体中文字体 */
+            background-color: var(--bg-color);         /* 背景色使用CSS变量 */
+            color: var(--text-color);                  /* 文字颜色使用CSS变量 */
+            line-height: 1.6;                          /* 行高1.6倍，提高可读性 */
+            overflow-x: hidden;                        /* 隐藏水平滚动条 */
+        }
+        
+        /* 页面容器样式 - 所有页面默认隐藏 */
+        .page {
+            min-height: 100vh;
+            display: none;
+            position: relative;
+        }
+        
+        /* 激活页面的样式 */
+        .page.active {
+            display: block;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        /* 导航箭头 */
+        .next-section-arrow {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* 可见状态下的导航箭头 */
+        .next-section-arrow.visible {
+            animation: slideInUp 0.5s ease-out 1s forwards;
+        }
+        
+        /* 鼠标悬停时的导航箭头效果 */
+        .next-section-arrow:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(255, 107, 139, 0.4);
+        }
+        
+        /* 导航箭头内的图标样式 */
+        .next-section-arrow i {
+            color: white;
+            font-size: 24px;
+        }
+        
+        /* 封面页样式 */
+        #cover-page {
+            background: linear-gradient(135deg, #FF6B8B, #FF8FA3);
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* 封面页内容区域 */
+        #cover-page .page-content {
+            max-width: 600px;
+        }
+        
+        /* 封面页主标题样式 */
+        #cover-page h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* 封面页副标题样式 */
+        #cover-page .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+        
+        /* 密码输入表单样式 */
+        .password-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        /* 密码输入框样式 */
+        .password-form input {
+            padding: 15px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            width: 250px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        /* 密码输入框获取焦点时的样式 */
+        .password-form input:focus {
+            border-color: #ff4d73;
+        }
+        
+        /* 密码输入框提交按钮样式 */
+        .password-form button {
+            padding: 15px 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.3s;
+        }
+        
+        /* 密码输入框提交按钮悬停时的样式 */
+        .password-form button:hover {
+            background: #ff4d73;
+            transform: translateY(-3px);
+        }
+        
+        /* 计时器样式 */
+        #love-timer-page {
+            background: linear-gradient(to bottom, #FFF9FB, #E6F7F0);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        
+        /* 分区标题样式（用于各页面标题） */
+        .section-title {
+            font-family: 'Dancing Script', cursive;
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 40px;
+            color: var(--primary-color);
+        }
+        
+        /* 计时器容器样式 */
+        .timer-container {
+            background-color: white;
+            text-align: center;
+            border-radius: 15px;
+            padding: 60px 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        /* 天数计数器数字样式 */
+        .days-counter {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        
+        /* 天数标签文字样式 */
+        .days-label {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        /* 故事轴样式 */
+        #our-story-page {
+            background-color: #FFF9FB;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* 时间轴容器样式 */
+        .timeline-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        /* 时间轴主线样式 */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 时间轴主线垂直线样式 */
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--timeline-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 3px;
+        }
+        
+        /* 时间轴项目样式 */
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        /* 时间轴项目显示样式 */
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 时间轴项目左侧样式 */
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+        
+        /* 时间轴项目右侧样式 */
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+        
+        /* 时间轴内容区域样式 */
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        /* 时间轴内容区域悬停样式 */
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        /* 时间轴日期文字样式 */
+        .timeline-date {
+            font-weight: bold;
+            color: var(--timeline-color);
+            margin-bottom: 10px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* 时间轴日期图标样式 */
+        .timeline-date i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        /* 时间轴标题文字样式 */
+        .timeline-title {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        /* 时间轴描述文字样式 */
+        .timeline-description {
+            color: #666;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        /* 时间轴图片样式 */
+        .timeline-img {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            max-height: 200px;
+            object-fit: cover;
+        }
+        
+        /* 未来胶囊页面样式 */
+        #future-capsule-page {
+            background-color: #F9F9FF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        
+        /* 未来胶囊容器样式 */
+        .future-capsule-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 胶囊分区样式 */
+        .capsule-section {
+            margin-bottom: 50px;
+        }
+
+        /* 胶囊分区标题样式 */
+        .capsule-section h3 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFE4E9;
+        }
+
+        /* 胶囊列表样式 */
+        .capsule-list {
+            list-style: none;
+        }
+
+        /* 胶囊列表项样式 */
+        .capsule-item {
+            padding: 15px 0;
+            border-bottom: 1px dashed #E0E0E0;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 胶囊列表项文字样式 */
+        .capsule-text {
+            flex: 1;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+        
+        /* 胶囊列表项操作按钮样式 */
+        .capsule-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* 操作按钮样式 */
+        .action-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        /* 好按钮样式 */
+        .good-btn {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 2px solid #C8E6C9;
+        }
+
+        /* 好按钮悬停样式 */
+        .good-btn:hover {
+            background-color: #C8E6C9;
+        }
+        
+        /* 坏按钮样式 */
+        .bad-btn {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border: 2px solid #FFCDD2;
+        }
+        
+        /* 坏按钮悬停样式 */
+        .bad-btn:hover {
+            background-color: #FFCDD2;
+        }
+        
+        /* 选中样式 */
+        .selected {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 星星图标样式 */
+        .star-icon {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        /* 隐藏彩蛋消息样式 */
+        .secret-message {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #FFF8E1;
+            border-radius: 10px;
+            border-left: 4px solid #FFD54F;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* 一周年页面样式 */
+        #anniversary-page {
+            background-color: var(--light-pink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* 一周年页面顶部区域 */
+        .anniversary-header {
+            background-color: var(--light-pink);
+            height: 33vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 顶部区域渐变遮罩 */
+        .anniversary-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to bottom, var(--light-pink), rgba(255, 228, 233, 0.8));
+        }
+
+        /* 一周年标题样式 */
+        .anniversary-title {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 3.5rem;
+            color: white;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-weight: 500;
+        }
+        
+        /* 主要内容区域 */
+        .anniversary-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px 60px;
+        }
+        
+        /* 信封卡片 */
+        .envelope-card {
+            background-color: var(--medium-pink);
+            border-radius: 20px;
+            padding: 60px 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 143, 163, 0.3);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 30px;
+        }
+
+        /* 信封卡片悬停效果 */
+        .envelope-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(255, 143, 163, 0.4);
+        }
+        
+        /* 信封图标 */
+        .envelope-icon {
+            font-size: 5rem;
+            color: white;
+            margin-bottom: 30px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* 信封标题 */
+        .envelope-card-title {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        /* 提示文字 - 鼠标悬停显示 */
+        .envelope-hint {
+            color: white;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        
+        /* 页面底部提示 */
+        .page-bottom-hint {
+            color: #999;
+            font-size: 0.9rem;
+            font-style: italic;
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* 完整信件弹窗 */
+        .letter-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* 激活状态的弹窗 */
+        .letter-modal.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* 信件内容区域样式 */
+        .letter-content {
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            position: relative;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.3rem;
+            line-height: 1.8;
+        }
+
+        /* 关闭信件按钮 */
+        .close-letter {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+        
+        /* 关闭按钮悬停效果 */
+        .close-letter:hover {
+            color: var(--primary-color);
+        }
+
+        /* 信件内容标题 */
+        .letter-content h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+        }
+
+        /* 信件内容段落 */
+        .letter-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* 信件签名样式 */
+        .full-letter-signature {
+            text-align: right;
+            margin-top: 40px;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .heartbeat {
+            animation: heartbeat 2s infinite;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+            
+            #cover-page h1 {
+                font-size: 3rem;
+            }
+            
+            #cover-page .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .password-form {
+                padding: 20px;
+                width: 90%;
+            }
+            
+            .password-form input {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .days-counter {
+                font-size: 3.5rem;
+            }
+            
+            .next-section-arrow {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .future-capsule-container {
+                padding: 20px;
+            }
+            
+            .capsule-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .capsule-actions {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .action-btn {
+                flex: 1;
+            }
+            
+            .anniversary-title {
+                font-size: 2.8rem;
+            }
+            
+            .envelope-card {
+                padding: 40px 25px;
+                margin: 20px;
+            }
+            
+            .envelope-icon {
+                font-size: 4rem;
+            }
+            
+            .envelope-card-title {
+                font-size: 2rem;
+            }
+            
+            .letter-content {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .anniversary-title {
+                font-size: 2.2rem;
+            }
+            
+            .envelope-card {
+                padding: 30px 20px;
+            }
+            
+            .envelope-icon {
+                font-size: 3.5rem;
+            }
+            
+            .envelope-card-title {
+                font-size: 1.8rem;
+            }
+            
+            .envelope-hint {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 封面页 -->
+    <section id="cover-page" class="page active">
+        <div class="page-content">
+            <h1>我们的爱情纪念册</h1>
+            <p class="subtitle">输入我们的纪念日密码，开启属于我们的回忆之旅</p>
+            <div class="password-form">
+                <input type="password" id="password-input" placeholder="请输入密码" maxlength="6">
+                <button id="enter-btn">进入</button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 时光计时器页 -->
+    <section id="love-timer-page" class="page">
+        <div class="page-content">
+            <h2 class="section-title">时光计时器</h2>
+            <div class="timer-container heartbeat">
+                <div class="days-counter" id="days-counter">255</div>
+                <div class="days-label">我们已经相爱了 <span id="days-number">255</span> 天</div>
+            </div>
+        </div>
+        <div class="next-section-arrow" id="timer-to-story">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </section>
+    
+    <!-- 我们的故事页 -->
+    <section id="our-story-page" class="page">
+        <div class="page-content">
+            <h2 class="section-title">我们的故事</h2>
+            <div class="timeline-container">
+                <div class="timeline" id="timeline">
+                    <!-- 时间轴项目将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+        <div class="next-section-arrow" id="story-to-future">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </section>
+    
+    <!-- 未来胶囊页 -->
+    <section id="future-capsule-page" class="page">
+        <div class="page-content">
+            <h2 class="section-title">未来胶囊</h2>
+            <div class="future-capsule-container">
+                <div class="capsule-section">
+                    <h3>我们的异地约定</h3>
+                    <ul class="capsule-list" id="agreement-list">
+                        <!-- 约定列表将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+                
+                <div class="capsule-section">
+                    <h3>未来想一起完成的N件事</h3>
+                    <ul class="capsule-list" id="wish-list">
+                        <!-- 愿望列表将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="next-section-arrow" id="future-to-anniversary">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </section>
+    
+    <!-- 一周年页  -->
+    <section id="anniversary-page" class="page">
+        <div class="anniversary-header">
+            <h1 class="anniversary-title">一周年纪念</h1>
+        </div>
+        
+        <div class="anniversary-main">
+            <div class="envelope-card" id="envelope-card">
+                <div class="envelope-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="envelope-card-title">一周年纪念</div>
+                <div class="envelope-hint">点击信封查看一周年信件</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 完整信件弹窗 -->
+    <div class="letter-modal" id="letter-modal">
+        <div class="letter-content">
+            <span class="close-letter" id="close-letter">&times;</span>
+            <h2>致我最爱的人</h2>
+            <p>亲爱的，</p>
+            <p>这一年来，虽然我们相隔两地，但我的心始终与你在一起。感谢你的理解、支持和爱，让我在每一个想你的夜晚都充满力量。</p>
+            <p>还记得我们第一次见面的时候吗？那天阳光正好，你穿着白色的裙子，笑容比阳光还要灿烂。从那一刻起，我就知道，你就是我要找的那个人。</p>
+            <p>异地恋的日子并不容易，但我们一起走过了365个日夜。每一次视频通话，每一次深夜的聊天，都让我们的感情更加深厚。</p>
+            <p>我知道，有时候你会感到孤单，会想我在身边。我也一样，每当看到别人成双成对，我都会想起你，想起我们在一起的点点滴滴。</p>
+            <p>但请相信，距离并不能阻隔我们的爱。它只会让我们的思念更加浓烈，让我们的重逢更加珍贵。</p>
+            <p>我期待着我们的未来，期待着我们一起生活的日子。我们会有一个温馨的小家，养一只可爱的宠物，一起做饭，一起看电影，一起度过每一个平凡而又不平凡的日子。</p>
+            <p>请记住，无论相隔多远，我的心永远与你在一起。你是我生命中最重要的人，我会用我全部的爱来呵护你，珍惜你。</p>
+            <p>期待我们早日团聚的那一天！</p>
+            <div class="full-letter-signature">永远爱你的，<br><span>[你的名字]</span></div>
+            <p style="text-align: right; margin-top: 20px;">2026年1月26日</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始状态：只显示封面页，其他页面都隐藏
+            document.getElementById('love-timer-page').style.display = 'none';
+            document.getElementById('our-story-page').style.display = 'none';
+            document.getElementById('future-capsule-page').style.display = 'none';
+            document.getElementById('anniversary-page').style.display = 'none';
+            
+            // 隐藏所有导航箭头
+            document.getElementById('timer-to-story').style.display = 'none';
+            document.getElementById('story-to-future').style.display = 'none';
+            document.getElementById('future-to-anniversary').style.display = 'none';
+            
+            // 密码验证
+            document.getElementById('enter-btn').addEventListener('click', function() {
+                const password = document.getElementById('password-input').value;
+                const correctPassword = '250531'; // 纪念日密码
+                
+                if (password === correctPassword) {
+                    // 隐藏封面页，显示计时器页
+                    document.getElementById('cover-page').classList.remove('active');
+                    document.getElementById('cover-page').style.display = 'none';
+                    
+                    document.getElementById('love-timer-page').classList.add('active');
+                    document.getElementById('love-timer-page').style.display = 'flex';
+                    
+                    // 显示计时器页的导航箭头
+                    document.getElementById('timer-to-story').style.display = 'flex';
+                    document.getElementById('timer-to-story').classList.add('visible');
+                } else {
+                    alert('密码错误，请重新输入！(提示：纪念日YYMMDD格式)');
+                }
+            });
+            
+            // 时光计时器
+            function initLoveTimer() {
+                const startDate = new Date('2025-05-31'); // 纪念日
+                const today = new Date();
+                const timeDiff = today.getTime() - startDate.getTime();
+                const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+                
+                document.getElementById('days-counter').textContent = daysDiff;
+                document.getElementById('days-number').textContent = daysDiff;
+            }
+            
+            initLoveTimer();
+            
+            // 时间轴功能 - 20个节点
+            function initTimeline() {
+                // 时间轴数据，包含日期、标题、描述和图片
+                const timelineData = [
+                    {
+                        date: "2025-05-20",
+                        title: "初识",
+                        description: "茫茫人海里，很幸运遇见了你",
+                        image: "01.jpg"
+                    },
+                    {
+                        date: "2025-05-31",
+                        title: "恋爱",
+                        description: "我们正式在一起啦，往后余生都是你！",
+                        image: "02.jpg"
+                    },
+                    {
+                        date: "2025-06-01",
+                        title: "第一次出去玩",
+                        description: "幸福的人是不会累的，因为爱直接暴走三万步！",
+                        image: "03.jpg"
+                    },
+                    {
+                        date: "2025-06-10",
+                        title: "宝宝生日",
+                        description: "第一次陪宝宝过生日，很开心，可惜没有拍很多照片纪念",
+                        image: "04.jpg"
+                    },
+                    {
+                        date: "2025-07-05",
+                        title: "第一次旅游",
+                        description: "在大同，我们第一次在一起过夜，发现彼此有那么多共同话题",
+                        image: "05.jpg"
+                    },
+                    {
+                        date: "2025-07-08",
+                        title: "我的生日",
+                        description: "宝宝送给我的刺绣和手表都非常喜欢，谢谢宝宝的生日礼物！",
+                        image: "06.jpg"
+                    },
+                    {
+                        date: "2025-08-28",
+                        title: "我的世界",
+                        description: "我们一起建了超级好看的大房子，和我的世界一起玩我的世界",
+                        image: "07.png"
+                    },
+                    {
+                        date: "2025-09-08",
+                        title: "100天！",
+                        description: "我们已经在一起100天啦！而这也仅仅是序章！",
+                        image: "08.jpg"
+                    },
+                    {
+                        date: "2025-11-08",
+                        title: "第一次线下观赛",
+                        description: "在盛大的鸟巢见证AG夺冠，太震撼啦！",
+                        image: "09.jpg"
+                    },
+                    {
+                        date: "2025-12-13",
+                        title: "我们看的第一场雪",
+                        description: "那时我们大吵一架，宝宝从环球回来直接来找我啦，正好赶上我们在一块的第一场大雪",
+                        image: "10.jpg"
+                    },
+                    {
+                        date: "2025-12-18",
+                        title: "200天！",
+                        description: "恋爱的小船已经幸福航行200天啦，我们一起去吃的小海鲜",
+                        image: "11.jpg"
+                    },
+                    {
+                        date: "2025-12-31",
+                        title: "第一次一起跨年",
+                        description: "那天我们一起去买了东西，在自己小家里喝了小酒，有点小醉宝宝还照顾我嘻嘻真好",
+                        image: "12.jpg"
+                    },
+                    {
+                        date: "2026-01-18",
+                        title: "起程公寓",
+                        description: "在这个小家里我们有关争吵但更多的是关爱与理解，留下了很多美好的回忆",
+                        image: "13.jpg"
+                    },
+                    {
+                        date: "2026-01-20",
+                        title: "寒假前",
+                        description: "在寒假回家前，宝宝特意赶来找我，很感动",
+                        image: "14.jpg"
+                    },
+                    {
+                        date: "2026-03-20",
+                        title: "天坛",
+                        description: "第一次正式拍照拍的很糟糕咱俩也因此吵架，不过还是和好啦",
+                        image: "15.jpg"
+                    },
+                    {
+                        date: "2026-03-28",
+                        title: "玉渊潭公园",
+                        description: "开开心心和美人去看美美的樱花",
+                        image: "16.jpg"
+                    },
+                    {
+                        date: "2026-04-04",
+                        title: "天津两日游",
+                        description: "在天津我们大吵一架哭的痛心疾首，不过回头看来也让我们的感情迈上了一个新的台阶",
+                        image: "17.jpg"
+                    },
+                    {
+                        date: "2026-04-10",
+                        title: "动物园颐和园",
+                        description: "又是特种兵但是开心的一天，我的拍照水平也进步啦还被宝宝夸了",
+                        image: "18.jpg"
+                    },
+                    {
+                        date: "2026-05-19",
+                        title: "王者荣耀",
+                        description: "王者荣耀可是我们约会非常重要的一环，在我们添加王者好友的第364天成为了27级情侣！",
+                        image: "19.jpg"
+                    },
+                    {
+                        date: "2026-05-31",
+                        title: "一周年！",
+                        description: "恭喜我们，一周年！这也是新的恋爱生活的开端！",
+                        image: "20.jpg"
+                    }
+                ];
+                // 获取时间轴容器
+                const timelineContainer = document.getElementById('timeline');
+                
+                // 按日期排序
+                timelineData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                // 遍历数据，创建时间轴项目
+                timelineData.forEach((item, index) => {
+                    // 创建时间轴项目元素
+                    const timelineItem = document.createElement('div');
+                    // 设置类名，奇数项在左，偶数项在右
+                    timelineItem.className = `timeline-item ${index % 2 === 0 ? 'left' : 'right'}`;
+                    // 设置时间轴项目HTML内容
+                    timelineItem.innerHTML = `
+                        <div class="timeline-content" data-index="${index}">
+                            <div class="timeline-date">
+                                <i class="fas fa-star"></i>
+                                ${item.date}
+                            </div>
+                            <h3 class="timeline-title">${item.title}</h3>
+                            <p class="timeline-description">${item.description}</p>
+                            <img src="${item.image}" alt="${item.title}" class="timeline-img" data-index="${index}" onerror="this.style.display='none'">
+                        </div>
+                    `;
+                    // 将时间轴项目添加到容器中
+                    timelineContainer.appendChild(timelineItem);
+                    
+                    // 添加点击事件显示图片
+                    const content = timelineItem.querySelector('.timeline-content');
+                    const img = timelineItem.querySelector('.timeline-img');
+                    
+                    content.addEventListener('click', function() {
+                        if (img.style.display === 'block') {
+                            img.style.display = 'none';
+                        } else {
+                            img.style.display = 'block';
+                        }
+                    });
+                });
+                
+                // 添加滚动动画
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                document.querySelectorAll('.timeline-item').forEach(item => {
+                    observer.observe(item);
+                });
+            }
+            
+            initTimeline();
+            
+            // 未来胶囊功能
+function initFutureCapsule() {
+    // 1. 约定列表数据（6个）
+    const agreementList = [
+        "遵循恋人优先原则，自觉与异性保持距离",
+        "分享每天的日常小事，给对方足够安全感",
+        "遇到矛盾及时沟通，不冷战不说反话",
+        "每天至少视频通话一次,及时倾诉情绪",
+        "定期规划见面时间，珍惜每次见面",
+        "为对方准备小惊喜"
+    ];
+    
+    // 2. 愿望列表数据（9个）
+    const wishList = [
+        "一起去全国各地旅游（拍好多好多照片）",
+        "一起养一只宠物",
+        "一起看日落晚风慢悠悠走遍大街小巷",
+        "一起买菜做饭做对方想吃的",
+        "一起看一场演唱会或者是KPL",
+        "一起吃吃很多很多顿漂亮饭",
+        "一起努力学习工作挣大钱",
+        "一起去领证，结婚！",
+        "一起慢慢变老"
+    ];
+    
+    // 3. 约定列表对应的彩蛋消息（按顺序一一对应）
+    const agreementGoodMessages = [
+        "无论身边人再多，心里第一位永远留给对方！",
+        "如果太忙也要相互理解体谅",
+        "吵架最好不过夜，也不乱发脾气",
+        "难过委屈第一时间告诉对方哦！",
+        "好好吃饭睡觉，等着好好见面",
+        "新鲜感是和旧的人体验新事物！"
+    ];
+    const agreementBadMessages = [
+        "选这个啥意思（哼）",
+        "那对方没安全感咋办",
+        "吵架可以但是不解决问题不行",
+        "不告诉对方就是不喜欢了",
+        "咋啦不想见面呀",
+        "不好就不好呗哼哼哼哼哼"
+    ];
+    
+    // 4. 愿望列表对应的彩蛋消息（按顺序一一对应，补全9个）
+    const wishGoodMessages = [
+        "我们要拍好多好多照片！",
+        "宝宝最喜欢小猫咪了",
+        "晚风日落散步真的超级幸福",
+        "特别想吃宝宝做的饭",
+        "去听周杰伦的演唱会或者是买KPL最贵的内场票",
+        "每一顿饭都是我们甜甜的回忆",
+        "一起并肩努力为未来打拼！",
+        "结束这段异地恋我们就结婚！",
+        "最浪漫的事，就是和你一起慢慢变老"
+    ];
+    const wishBadMessages = [
+        "想宅在家里看剧打游戏嘛",
+        "咦这不太对吧",
+        "上班累了想休息当然也可以啦",
+        "不能全是我做饭或者点外卖吧",
+        "等以后有钱了为啥不行捏",
+        "想吃什么都听宝宝的还不好嘛",
+        "难不成宝宝要包养我",
+        "如果宝宝坚定放弃我我肯定不会死缠滥打的",
+        "变老的路上，有我陪你，不怕～"
+    ];
+    
+    // 渲染约定列表
+    const agreementListEl = document.getElementById('agreement-list');
+    agreementList.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'capsule-item';
+        li.innerHTML = `
+            <i class="fas fa-star star-icon"></i>
+            <span class="capsule-text">${item}</span>
+            <div class="capsule-actions">
+                <button class="action-btn good-btn" data-type="good" data-index="${index}" data-list="agreement">好</button>
+                <button class="action-btn bad-btn" data-type="bad" data-index="${index}" data-list="agreement">不好</button>
+            </div>
+            <div class="secret-message" id="secret-${index}-agreement"></div>
+        `;
+        agreementListEl.appendChild(li);
+    });
+    
+    // 渲染愿望列表
+    const wishListEl = document.getElementById('wish-list');
+    wishList.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'capsule-item';
+        li.innerHTML = `
+            <i class="fas fa-star star-icon"></i>
+            <span class="capsule-text">${item}</span>
+            <div class="capsule-actions">
+                <button class="action-btn good-btn" data-type="good" data-index="${index}" data-list="wish">好</button>
+                <button class="action-btn bad-btn" data-type="bad" data-index="${index}" data-list="wish">不好</button>
+            </div>
+            <div class="secret-message" id="secret-${index}-wish"></div>
+        `;
+        wishListEl.appendChild(li);
+    });
+    
+    // 按钮点击事件（核心修改：按索引取固定消息）
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // 获取当前项的索引、类型（good/bad）、列表类型（agreement/wish）
+            const index = parseInt(this.getAttribute('data-index'));
+            const type = this.getAttribute('data-type');
+            const listType = this.getAttribute('data-list');
+            const isGood = type === 'good';
+            
+            // 隐藏同列表下所有彩蛋消息
+            document.querySelectorAll(`.secret-message`).forEach(msg => {
+                msg.style.display = 'none';
+            });
+            
+            // 找到当前项的彩蛋消息容器
+            const secretMsgEl = document.getElementById(`secret-${index}-${listType}`);
+            
+            // 根据类型和列表取对应固定消息
+            let message = '';
+            if (listType === 'agreement') {
+                message = type === 'good' ? agreementGoodMessages[index] : agreementBadMessages[index];
+            } else if (listType === 'wish') {
+                message = type === 'good' ? wishGoodMessages[index] : wishBadMessages[index];
+            }
+            
+            // 显示彩蛋消息
+            secretMsgEl.textContent = message;
+            if (isGood) {
+                secretMsgEl.style.backgroundColor = '#E8F5E9'; // 绿色背景
+                secretMsgEl.style.borderLeft = '4px solid #4CAF50'; // 绿色左边框
+                secretMsgEl.style.color = '#2E7D32';
+            } else {
+                   secretMsgEl.style.backgroundColor = '#FFEBEE'; // 红色背景
+                   secretMsgEl.style.borderLeft = '4px solid #F44336'; // 红色左边框
+                   secretMsgEl.style.color = '#C62828';
+            }
+            secretMsgEl.style.display = 'block';
+            secretMsgEl.style.marginTop = '8px';
+            secretMsgEl.style.padding = '8px 12px';
+            secretMsgEl.style.borderRadius = '6px';
+            
+            // 选中效果
+            this.closest('.capsule-item').classList.add('selected');
+            // 其他项取消选中
+            document.querySelectorAll('.capsule-item').forEach(item => {
+                if (item !== this.closest('.capsule-item')) {
+                    item.classList.remove('selected');
+                }
+            });
+        });
+    });
+}
+
+// 初始化未来胶囊
+initFutureCapsule();
+
+
+            
+            // 信封功能 - 点击打开完整信件
+            function initEnvelope() {
+                const envelopeCard = document.getElementById('envelope-card');
+                const letterModal = document.getElementById('letter-modal');
+                const closeLetter = document.getElementById('close-letter');
+                
+                envelopeCard.addEventListener('click', function() {
+                    letterModal.classList.add('active');
+                });
+                
+                closeLetter.addEventListener('click', function() {
+                    letterModal.classList.remove('active');
+                });
+                
+                // 点击弹窗外部分关闭
+                letterModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            }
+            
+            initEnvelope();
+            
+            // 导航箭头功能
+            const timerToStory = document.getElementById('timer-to-story');
+            const storyToFuture = document.getElementById('story-to-future');
+            const futureToAnniversary = document.getElementById('future-to-anniversary');
+            
+            timerToStory.addEventListener('click', function() {
+                document.getElementById('love-timer-page').classList.remove('active');
+                document.getElementById('love-timer-page').style.display = 'none';
+                
+                document.getElementById('our-story-page').classList.add('active');
+                document.getElementById('our-story-page').style.display = 'block';
+                
+                this.style.display = 'none';
+                storyToFuture.style.display = 'flex';
+                storyToFuture.classList.add('visible');
+            });
+            
+            storyToFuture.addEventListener('click', function() {
+                document.getElementById('our-story-page').classList.remove('active');
+                document.getElementById('our-story-page').style.display = 'none';
+                
+                document.getElementById('future-capsule-page').classList.add('active');
+                document.getElementById('future-capsule-page').style.display = 'flex';
+                
+                this.style.display = 'none';
+                futureToAnniversary.style.display = 'flex';
+                futureToAnniversary.classList.add('visible');
+            });
+            
+            futureToAnniversary.addEventListener('click', function() {
+                document.getElementById('future-capsule-page').classList.remove('active');
+                document.getElementById('future-capsule-page').style.display = 'none';
+                
+                document.getElementById('anniversary-page').classList.add('active');
+                document.getElementById('anniversary-page').style.display = 'block';
+                
+                this.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
